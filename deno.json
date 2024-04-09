@@ -2,6 +2,7 @@
   "name": "@avalero/maths",
   "version": "0.0.1",
   "exports": "./mod.ts",
+  "description": "A simple maths library",
   "tasks": {
     "test": "deno test ./tests"
   }
