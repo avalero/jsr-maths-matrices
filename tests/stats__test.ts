@@ -16,3 +16,11 @@ Deno.test("Stats.stdDev", () => {
 Deno.test("Stats.median", () => {
   assertEquals(Stats.median([1, 2, 3, 4, 7]), 3);
 });
+
+Deno.test("Stats.mode", () => {
+  assertEquals(Stats.mode([1, 2, 3, 4, 7, 7, 7, 7]), 7);
+});
+
+Deno.test("Stats.range", () => {
+  assertEquals(Stats.range([1, 2, 3, 4, 7]), 6);
+});

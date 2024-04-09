@@ -7,7 +7,7 @@
 
 /**
  * Export all the functions from the files in the module Stats.
- * Includes: average, variance, stdDev, median.
+ * Includes: average, variance, stdDev, median, mode, range.
  * @module Stats
  */
 export * as Stats from "./stats.ts";
@@ -17,4 +17,4 @@ export * as Stats from "./stats.ts";
  * Includes: max, min.
  * @module Maths
  */
-export * as Maths from "./maths.ts";
+export { max, min } from "./maths.ts";
