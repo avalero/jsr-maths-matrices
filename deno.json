@@ -1,0 +1,8 @@
+{
+  "name": "@avalero/maths",
+  "version": "0.0.1",
+  "exports": "./mod.ts",
+  "tasks": {
+    "test": "deno test ./tests"
+  }
+}

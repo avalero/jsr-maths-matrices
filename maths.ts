@@ -1,3 +1,5 @@
+// maths.ts
+
 /**
  * @param arr Array of numbers
  * @returns maximum number in the array
