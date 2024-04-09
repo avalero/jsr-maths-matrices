@@ -9,20 +9,20 @@
  * @param arr Array of numbers
  * @returns average of numbers in the array
  */
-export const average = (arr: number[]): number => {
+export function average(arr: number[]): number {
   return arr.reduce((acc, curr) => acc + curr, 0) / arr.length;
-};
+}
 
 /**
  * Compute variance of an array of numbers
  * @param arr Array of numbers
  * @returns Variance of the array
  */
-export const variance = (arr: number[]): number => {
+export function variance(arr: number[]): number {
   const mean = average(arr);
   const sum = arr.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0);
   return sum / arr.length;
-};
+}
 
 /**
  * Compute standard deviation of an array of numbers
