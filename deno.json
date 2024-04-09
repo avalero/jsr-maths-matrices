@@ -1,6 +1,6 @@
 {
   "name": "@avalero/maths",
-  "version": "0.0.2-b",
+  "version": "0.0.3",
   "exports": {
     ".": "./mod.ts",
     "./maths": "./maths.ts",
