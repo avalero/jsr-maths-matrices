@@ -1,4 +1,15 @@
 {
+  "name": "@avalero/maths",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.ts",
+    "./maths": "./maths.ts",
+    "./stats": "./stats.ts"
+  },
+  "description": "A simple maths library",
+  "publish": {
+    "exclude": ["./tests", ".gitignore", ".vscode", ".github"]
+  },
   "tasks": {
     "test": "deno test ./tests"
   }
