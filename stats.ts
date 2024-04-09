@@ -29,19 +29,19 @@ export const variance = (arr: number[]): number => {
  * @param arr Array of numbers
  * @returns maximum number in the array
  */
-export const stdDev = (arr: number[]): number => {
+export function stdDev(arr: number[]): number {
   return Math.sqrt(variance(arr));
-};
+}
 
 /**
  * Compute median of an array of numbers
  * @param arr Array of numbers
  * @returns median number in the array
  */
-export const median = (arr: number[]): number => {
+export function median(arr: number[]): number {
   const sorted = arr.sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 === 0
     ? (sorted[mid - 1] + sorted[mid]) / 2
     : sorted[mid];
-};
+}
