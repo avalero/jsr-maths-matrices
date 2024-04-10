@@ -4,7 +4,7 @@
  * @module Stats
  */
 
-import { max, min } from "./maths.ts";
+import { max, min } from "../basics/mod.ts";
 
 /**
  * Compute average of an array of numbers
