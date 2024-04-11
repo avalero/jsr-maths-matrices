@@ -131,7 +131,7 @@ export class Matrix {
    * const matrix = new Matrix([1, 2, 3, 4], 2, 2);
    * console.log(matrix.cofactor(0, 0)); // Output: 4
    */
-  private _cofactor(row: number, col: number): number {
+  cofactor(row: number, col: number): number {
     if (this._rows !== this._cols) {
       throw new Error("Matrix must be square");
     }
@@ -165,7 +165,7 @@ export class Matrix {
     // For matrices larger than 2x2, you would normally use recursion or another method to compute the determinant
     let det = 0;
     for (let i = 0; i < this._cols; i++) {
-      det += this.get(0, i) * this._cofactor(0, i);
+      det += this.get(0, i) * this.cofactor(0, i);
     }
     return det;
   }
@@ -237,7 +237,7 @@ export class Matrix {
     let cofactors = new Array(this._rows * this._cols);
     for (let row = 0; row < this._rows; row++) {
       for (let col = 0; col < this._cols; col++) {
-        cofactors[row * this._cols + col] = this._cofactor(row, col);
+        cofactors[row * this._cols + col] = this.cofactor(row, col);
       }
     }
 
