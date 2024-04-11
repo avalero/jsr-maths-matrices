@@ -6,20 +6,12 @@
  */
 
 /**
- * Export all the functions from the files in the module Stats.
- * @module Stats
- */
-export * as Stats from "./stats/mod.ts";
-
-/**
  * Export all the functions from the files in the module Matrix.
  * @module Matrix
  * @preferred
  */
-export * as Matrix from "./matrix/mod.ts";
-
-/**
- * Export all the functions from the files in the module.
- * @module Maths
- */
-export * from "./basics/mod.ts";
+export * from "./src/add.ts";
+export * from "./src/determinant.ts";
+export * from "./src/matrix.ts";
+export * from "./src/multiply.ts";
+export * from "./src/substract.ts";

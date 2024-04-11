@@ -1,11 +1,10 @@
 {
-  "name": "@avalero/maths",
-  "version": "0.0.9",
+  "name": "@maths/matrix",
+  "version": "0.0.1",
   "exports": {
-    ".": "./mod.ts",
-    "./stats": "./stats/mod.ts"
+    ".": "./mod.ts"
   },
-  "description": "A simple maths library",
+  "description": "A Matrix library",
   "publish": {
     "exclude": ["./tests", ".gitignore", ".vscode", ".github"]
   },
