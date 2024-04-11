@@ -26,6 +26,31 @@ export class Matrix {
   }
 
   /**
+   * Creates an identity matrix of the specified size.
+   * @param size  Size of the identity matrix.
+   * @returns A new identity matrix of the specified size.
+   * @example const identity = Matrix.createIdentity(3); // Creates a 3x3 identity matrix
+   */
+  static createIdentity(size: number): Matrix {
+    const data = new Array(size * size).fill(0);
+    for (let i = 0; i < size; i++) {
+      data[i * size + i] = 1;
+    }
+    return new Matrix(data, size, size);
+  }
+
+  /**
+   * Creates a matrix of the specified size with all elements set to zero.
+   * @param rows Number of rows in the matrix.
+   * @param cols Number of columns in the matrix.
+   * @returns A new matrix of the specified size with all elements set to zero.
+   * @example const zero = Matrix.createZero(2, 3); // Creates a 2x3 matrix of zeros
+   */
+  static createZero(rows: number, cols: number): Matrix {
+    return new Matrix(new Array(rows * cols).fill(0), rows, cols);
+  }
+
+  /**
    * Returns the data of the matrix as a flat array.
    * @returns Array of matrix elements.
    * @example
