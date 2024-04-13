@@ -440,3 +440,19 @@ Deno.test(
     );
   }
 );
+
+Deno.test("Matrix.to2DArray should convert a Matrix to a 2D array", () => {
+  const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+  assertEquals(matrix.to2DArray(), [
+    [1, 2],
+    [3, 4],
+  ]);
+});
+
+Deno.test(
+  "Matrix.to2DArray should return an empty array for an empty Matrix",
+  () => {
+    const matrix = new Matrix([], 0, 0);
+    assertEquals(matrix.to2DArray(), []);
+  }
+);

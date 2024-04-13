@@ -52,6 +52,22 @@ export class Matrix {
   }
 
   /**
+   * Returns 2D array representation of the matrix
+   * @returns 2D array representation of the matrix
+   * @example
+   * ```ts
+   * const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+   * console.log(matrix.toArray()); // Output: [[1, 2], [3, 4]]
+   */
+  to2DArray(): number[][] {
+    const result = [];
+    for (let i = 0; i < this._rows; i++) {
+      result.push(this.getRow(i));
+    }
+    return result;
+  }
+
+  /**
    * Creates an identity matrix of the specified size.
    * @param size  Size of the identity matrix.
    * @returns A new identity matrix of the specified size.
