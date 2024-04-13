@@ -3,8 +3,7 @@
   "packages": {
     "specifiers": {
       "jsr:@std/assert": "jsr:@std/assert@0.222.1",
-      "jsr:@std/fmt@^0.222.1": "jsr:@std/fmt@0.222.1",
-      "npm:numeric@^1.2.6": "npm:numeric@1.2.6"
+      "jsr:@std/fmt@^0.222.1": "jsr:@std/fmt@0.222.1"
     },
     "jsr": {
       "@std/assert@0.222.1": {
@@ -16,18 +15,7 @@
       "@std/fmt@0.222.1": {
         "integrity": "ec3382f9b0261c1ab1a5c804aa355d816515fa984cdd827ed32edfb187c0a722"
       }
-    },
-    "npm": {
-      "numeric@1.2.6": {
-        "integrity": "sha512-avBiDAP8siMa7AfJgYyuxw1oyII4z2sswS23+O+ZfV28KrtNzy0wxUFwi4f3RyM4eeeXNs1CThxR7pb5QQcMiw==",
-        "dependencies": {}
-      }
     }
   },
-  "remote": {},
-  "workspace": {
-    "dependencies": [
-      "npm:numeric@^1.2.6"
-    ]
-  }
+  "remote": {}
 }

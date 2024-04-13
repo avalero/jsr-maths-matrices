@@ -397,3 +397,25 @@ Deno.test("Invalid value error handling", () => {
     "Invalid value"
   );
 });
+
+Deno.test("Matrix.getRow should return the correct row", () => {
+  const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+  assertEquals(matrix.getRow(0), [1, 2]);
+  assertEquals(matrix.getRow(1), [3, 4]);
+});
+
+Deno.test("Matrix.getRow should throw an error for invalid row", () => {
+  const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+  assertThrows(() => matrix.getRow(2), Error, "Invalid row");
+});
+
+Deno.test("Matrix.getColumn should return the correct column", () => {
+  const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+  assertEquals(matrix.getColumn(0), [1, 3]);
+  assertEquals(matrix.getColumn(1), [2, 4]);
+});
+
+Deno.test("Matrix.getColumn should throw an error for invalid column", () => {
+  const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+  assertThrows(() => matrix.getColumn(2), Error, "Invalid column");
+});

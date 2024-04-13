@@ -61,6 +61,42 @@ export class Matrix {
     return this._data;
   }
 
+  /** returns a specific row of a matrix
+   * @param row index of the row
+   * @returns Array of the row elements
+   * @example
+   * ```ts
+   * const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+   * console.log(matrix.getRow(0)); // Output: [1, 2]
+   * console.log(matrix.getRow(1)); // Output: [3, 4]
+   * console.log(matrix.getRow(2)); // Output: Error: Invalid row
+   * ```
+   */
+  getRow(row: number): number[] {
+    if (row < 0 || row >= this._rows) {
+      throw new Error("Invalid row");
+    }
+    return this._data.slice(row * this._cols, row * this._cols + this._cols);
+  }
+
+  /** returns a specific column of a matrix
+   * @param col index of the column
+   * @returns Array of the column elements
+   * @example
+   * ```ts
+   * const matrix = new Matrix([1, 2, 3, 4], 2, 2);
+   * console.log(matrix.getColumn(0)); // Output: [1, 3]
+   * console.log(matrix.getColumn(1)); // Output: [2, 4]
+   * console.log(matrix.getColumn(2)); // Output: Error: Invalid column
+   * ```
+   */
+  getColumn(col: number): number[] {
+    if (col < 0 || col >= this._cols) {
+      throw new Error("Invalid column");
+    }
+    return this._data.filter((_, index) => index % this._cols === col);
+  }
+
   /**
    * Returns the number of rows in the matrix.
    * @returns Number of rows.
@@ -290,8 +326,6 @@ export class Matrix {
     this._data = this.getTranspose().data;
     [this._rows, this._cols] = [this._cols, this._rows];
   }
-
-
 
   /**
    * Clones the matrix and returns a new instance with the same data.
