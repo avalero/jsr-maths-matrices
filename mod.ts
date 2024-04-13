@@ -15,3 +15,4 @@ export * from "./src/determinant.ts";
 export * from "./src/matrix.ts";
 export * from "./src/multiply.ts";
 export * from "./src/substract.ts";
+export * from "./src/invert.ts";
