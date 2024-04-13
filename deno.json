@@ -10,5 +10,8 @@
   },
   "tasks": {
     "test": "deno test ./tests"
+  },
+  "imports": {
+    "numeric": "npm:numeric@^1.2.6"
   }
 }

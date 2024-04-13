@@ -1,3 +1,6 @@
+import numeric from 'numeric';
+  
+
 /**
  * Represents a matrix for linear algebra operations.
  * @module Matrix
@@ -290,6 +293,8 @@ export class Matrix {
     this._data = this.getTranspose().data;
     [this._rows, this._cols] = [this._cols, this._rows];
   }
+
+
 
   /**
    * Clones the matrix and returns a new instance with the same data.

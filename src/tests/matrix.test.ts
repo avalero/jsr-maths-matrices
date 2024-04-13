@@ -174,10 +174,10 @@ Deno.test("Matrix: minor method for larger matrix", () => {
   assertEquals(minor.cols, 2);
 });
 
-Deno.test("Matrix: _cofactor method", () => {
+Deno.test("Matrix: cofactor method", () => {
   const matrix = new Matrix([1, 2, 3, 4], 2, 2);
   // Cofactor of the element at (0, 0): minor determinant is 4, sign factor is +1
-  const cofactor = matrix["_cofactor"](0, 0); // Using private method, might need to expose or modify access for testing
+  const cofactor = matrix["cofactor"](0, 0); // Using private method, might need to expose or modify access for testing
   assertEquals(cofactor, 4);
 });
 
@@ -228,12 +228,12 @@ Deno.test("Matrix: validate minor matrix content", () => {
   assertEquals(minor.data, expectedMinor.data);
 });
 
-Deno.test("Matrix: _cofactor method detailed check", () => {
+Deno.test("Matrix: cofactor method detailed check", () => {
   const matrix = new Matrix([1, 2, 3, 4], 2, 2);
   matrix.minor(0, 0).data.forEach((value, index) => {
     console.log(`Value at index ${index}: ${value}`); // Should log the values in the minor matrix
   });
-  const cofactor = matrix["_cofactor"](0, 0);
+  const cofactor = matrix["cofactor"](0, 0);
   assertEquals(cofactor, 4); // If the minor determinant is 4, and sign is +1
 });
 
