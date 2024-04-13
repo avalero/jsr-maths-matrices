@@ -1,6 +1,3 @@
-import numeric from 'numeric';
-  
-
 /**
  * Represents a matrix for linear algebra operations.
  * @module Matrix
