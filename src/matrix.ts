@@ -39,7 +39,7 @@ export class Matrix {
    * ```
    * @returns Matrix
    */
-  static fromArray(data: number[][]): Matrix {
+  static from2DArray(data: number[][]): Matrix {
     const rows = data.length;
     const cols = data[0].length;
     // check if all rows have the same length

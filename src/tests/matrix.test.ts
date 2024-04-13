@@ -421,7 +421,7 @@ Deno.test("Matrix.getColumn should throw an error for invalid column", () => {
 });
 
 Deno.test("Matrix.fromArray should create a Matrix from a 2D array", () => {
-  const matrix = Matrix.fromArray([
+  const matrix = Matrix.from2DArray([
     [1, 2],
     [3, 4],
   ]);
