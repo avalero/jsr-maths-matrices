@@ -434,7 +434,7 @@ Deno.test(
   "Matrix.fromArray should throw an error for invalid matrix dimensions",
   () => {
     assertThrows(
-      () => Matrix.fromArray([[1, 2], [3]]),
+      () => Matrix.from2DArray([[1, 2], [3]]),
       Error,
       "Invalid matrix dimensions"
     );
