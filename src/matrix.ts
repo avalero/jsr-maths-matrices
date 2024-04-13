@@ -26,6 +26,32 @@ export class Matrix {
   }
 
   /**
+   * Create Matrix form array of arrays
+   * @param data Array of arrays representing the matrix elements.
+   * @throws Error if the length of data does not equal rows * cols.
+   * @example
+   * ```ts
+   * const matrix = Matrix.fromArray([
+   *  [1, 2, 3],
+   * [4, 5, 6],
+   * [7, 8, 9]
+   * ]);
+   * ```
+   * @returns Matrix
+   */
+  static fromArray(data: number[][]): Matrix {
+    const rows = data.length;
+    const cols = data[0].length;
+    // check if all rows have the same length
+    if (!data.every((row) => row.length === cols)) {
+      throw new Error("Invalid matrix dimensions");
+    }
+
+    const flatData = data.flat();
+    return new Matrix(flatData, rows, cols);
+  }
+
+  /**
    * Creates an identity matrix of the specified size.
    * @param size  Size of the identity matrix.
    * @returns A new identity matrix of the specified size.

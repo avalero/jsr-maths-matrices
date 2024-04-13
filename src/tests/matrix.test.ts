@@ -419,3 +419,24 @@ Deno.test("Matrix.getColumn should throw an error for invalid column", () => {
   const matrix = new Matrix([1, 2, 3, 4], 2, 2);
   assertThrows(() => matrix.getColumn(2), Error, "Invalid column");
 });
+
+Deno.test("Matrix.fromArray should create a Matrix from a 2D array", () => {
+  const matrix = Matrix.fromArray([
+    [1, 2],
+    [3, 4],
+  ]);
+  assertEquals(matrix.data, [1, 2, 3, 4]);
+  assertEquals(matrix.rows, 2);
+  assertEquals(matrix.cols, 2);
+});
+
+Deno.test(
+  "Matrix.fromArray should throw an error for invalid matrix dimensions",
+  () => {
+    assertThrows(
+      () => Matrix.fromArray([[1, 2], [3]]),
+      Error,
+      "Invalid matrix dimensions"
+    );
+  }
+);
