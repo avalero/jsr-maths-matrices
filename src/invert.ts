@@ -7,7 +7,7 @@ import { Matrix } from "./matrix.ts";
  * @example invert(new Matrix([[1, 2], [3, 4]])); // returns [[-2, 1], [1.5, -0.5]]
  * @note Consider using the `getInverse` method of the matrix instance instead of this function.
  */
-export default  function invert(matrix: Matrix): Matrix {
+export function invert(matrix: Matrix): Matrix {
   
   return matrix.getInverse();
 }
