@@ -19,7 +19,7 @@ export function add(a: Matrix, b: Matrix): Matrix {
   return new Matrix(
     a.data.map((value, index) => value + b.data[index]),
     a.rows,
-    a.cols
+    a.cols,
   );
 }
 
@@ -40,7 +40,7 @@ export function addMany(matrices: Matrix[]): Matrix {
 
   if (
     rest.some(
-      (matrix) => matrix.rows !== first.rows || matrix.cols !== first.cols
+      (matrix) => matrix.rows !== first.rows || matrix.cols !== first.cols,
     )
   ) {
     throw new Error("Matrix dimensions must be the same");

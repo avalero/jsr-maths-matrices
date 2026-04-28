@@ -1,5 +1,5 @@
 // substract.test.ts
-import { assertEquals, assertThrows } from "jsr:@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 import { substract } from "../substract.ts";
 import { Matrix } from "../matrix.ts";
 
@@ -20,7 +20,7 @@ Deno.test(
     assertThrows(
       () => substract(a, b),
       Error,
-      "Matrix dimensions must be the same"
+      "Matrix dimensions must be the same",
     );
-  }
+  },
 );

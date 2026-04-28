@@ -1,8 +1,4 @@
-import {
-  assertAlmostEquals,
-  assertEquals,
-  assertThrows,
-} from "jsr:@std/assert";
+import { assertAlmostEquals, assertEquals, assertThrows } from "@std/assert";
 import { Matrix } from "../matrix.ts";
 import { multiply } from "../multiply.ts";
 
@@ -25,9 +21,9 @@ Deno.test(
     assertThrows(
       () => new Matrix(data, rows, cols),
       Error,
-      "Invalid matrix dimensions"
+      "Invalid matrix dimensions",
     );
-  }
+  },
 );
 
 Deno.test("Matrix data method", () => {
@@ -153,7 +149,7 @@ Deno.test(
     const cols = 3;
     const matrix = new Matrix(data, rows, cols);
     assertThrows(() => matrix.determinant(), Error, "Matrix must be square");
-  }
+  },
 );
 
 Deno.test("Matrix: minor method", () => {
@@ -224,15 +220,11 @@ Deno.test("Matrix: validate minor matrix content", () => {
   const matrix = new Matrix([1, 2, 3, 4], 2, 2);
   const expectedMinor = new Matrix([4], 1, 1); // Minor of element (0,0) is just the bottom-right element
   const minor = matrix.minor(0, 0);
-  console.log(minor.data);
   assertEquals(minor.data, expectedMinor.data);
 });
 
 Deno.test("Matrix: cofactor method detailed check", () => {
   const matrix = new Matrix([1, 2, 3, 4], 2, 2);
-  matrix.minor(0, 0).data.forEach((value, index) => {
-    console.log(`Value at index ${index}: ${value}`); // Should log the values in the minor matrix
-  });
   const cofactor = matrix["cofactor"](0, 0);
   assertEquals(cofactor, 4); // If the minor determinant is 4, and sign is +1
 });
@@ -260,7 +252,7 @@ Deno.test("Matrix invert - Non-square Matrix", () => {
       matrix.invert();
     },
     Error,
-    "Matrix must be square"
+    "Matrix must be square",
   );
 });
 
@@ -271,7 +263,7 @@ Deno.test("Matrix getInverse - Non-square Matrix", () => {
       matrix.getInverse();
     },
     Error,
-    "Matrix must be square"
+    "Matrix must be square",
   );
 });
 
@@ -282,7 +274,7 @@ Deno.test("Matrix invert - Non-invertible Square Matrix", () => {
       matrix.invert();
     },
     Error,
-    "Matrix is not invertible"
+    "Matrix is not invertible",
   );
 });
 
@@ -293,7 +285,7 @@ Deno.test("Matrix getInverse - Non-invertible Square Matrix", () => {
       matrix.getInverse();
     },
     Error,
-    "Matrix is not invertible"
+    "Matrix is not invertible",
   );
 });
 
@@ -306,12 +298,12 @@ Deno.test("Matrix identity matrix properties", () => {
   assertEquals(
     identityMatrix.data,
     inverseMatrix.data,
-    "An identity matrix should be its own inverse."
+    "An identity matrix should be its own inverse.",
   );
   assertEquals(
     identityMatrix.determinant(),
     1,
-    "The determinant of an identity matrix should be 1."
+    "The determinant of an identity matrix should be 1.",
   );
 });
 
@@ -323,7 +315,7 @@ Deno.test("Matrix transpose properties", () => {
   assertEquals(
     reTransposed.data,
     matrix.data,
-    "Transposing a matrix twice should yield the original matrix."
+    "Transposing a matrix twice should yield the original matrix.",
   );
 });
 
@@ -344,14 +336,14 @@ Deno.test("Diagonal matrix properties", () => {
   assertEquals(
     diagonal.determinant(),
     2,
-    "The determinant of a diagonal matrix should be the product of its diagonal elements."
+    "The determinant of a diagonal matrix should be the product of its diagonal elements.",
   );
   const inverseDiagonal = diagonal.getInverse();
   const expectedInverse = new Matrix([1, 0, 0, 0.5], 2, 2);
   assertEquals(
     inverseDiagonal.data,
     expectedInverse.data,
-    "The inverse of a diagonal matrix should be the reciprocal of its diagonal elements."
+    "The inverse of a diagonal matrix should be the reciprocal of its diagonal elements.",
   );
 });
 
@@ -363,14 +355,14 @@ Deno.test("Non-square matrix operations", () => {
       matrix.determinant();
     },
     Error,
-    "Matrix must be square"
+    "Matrix must be square",
   );
   assertThrows(
     () => {
       matrix.getInverse();
     },
     Error,
-    "Matrix must be square"
+    "Matrix must be square",
   );
 });
 
@@ -382,7 +374,7 @@ Deno.test("Symmetric matrix properties", () => {
   assertEquals(
     symmetricMatrix.data,
     transpose.data,
-    "A symmetric matrix should be equal to its transpose."
+    "A symmetric matrix should be equal to its transpose.",
   );
 });
 
@@ -394,7 +386,7 @@ Deno.test("Invalid value error handling", () => {
       matrix.set(1, 1, NaN);
     },
     Error,
-    "Invalid value"
+    "Invalid value",
   );
 });
 
@@ -436,9 +428,9 @@ Deno.test(
     assertThrows(
       () => Matrix.from2DArray([[1, 2], [3]]),
       Error,
-      "Invalid matrix dimensions"
+      "Invalid matrix dimensions",
     );
-  }
+  },
 );
 
 Deno.test("Matrix.to2DArray should convert a Matrix to a 2D array", () => {
@@ -454,5 +446,5 @@ Deno.test(
   () => {
     const matrix = new Matrix([], 0, 0);
     assertEquals(matrix.to2DArray(), []);
-  }
+  },
 );

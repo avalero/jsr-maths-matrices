@@ -10,23 +10,35 @@ import { Matrix } from "./matrix.ts";
  * @example multiply(new Matrix([1, 2, 3, 4, 5, 6],2,3 ), new Matrix([1, 2, 3, 4, 5, 6],3,2))
  */
 export function multiply(a: Matrix, b: Matrix): Matrix {
-  if (a.cols !== b.rows) {
+  const aRows = a.rows;
+  const aCols = a.cols;
+  const bRows = b.rows;
+  const bCols = b.cols;
+
+  if (aCols !== bRows) {
     throw new Error(
-      "Number of columns of the first matrix must be the same as the number of rows of the second matrix"
+      "Number of columns of the first matrix must be the same as the number of rows of the second matrix",
     );
   }
 
-  const data = new Array(a.rows * b.cols).fill(0);
+  const aData = a.data;
+  const bData = b.data;
+  const data = new Array(aRows * bCols).fill(0);
 
-  for (let i = 0; i < a.rows; i++) {
-    for (let j = 0; j < b.cols; j++) {
-      for (let k = 0; k < a.cols; k++) {
-        data[i * b.cols + j] += a.get(i, k) * b.get(k, j);
+  for (let i = 0; i < aRows; i++) {
+    const aRowStart = i * aCols;
+    const outRowStart = i * bCols;
+
+    for (let k = 0; k < aCols; k++) {
+      const aValue = aData[aRowStart + k];
+      const bRowStart = k * bCols;
+      for (let j = 0; j < bCols; j++) {
+        data[outRowStart + j] += aValue * bData[bRowStart + j];
       }
     }
   }
 
-  return new Matrix(data, a.rows, b.cols);
+  return new Matrix(data, aRows, bCols);
 }
 
 /**
