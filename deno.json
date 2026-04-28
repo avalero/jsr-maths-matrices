@@ -1,12 +1,12 @@
 {
   "name": "@maths/matrix",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "exports": {
     ".": "./mod.ts"
   },
   "description": "A Matrix library",
   "imports": {
-    "@std/assert": "jsr:@std/assert@0.222.1"
+    "@std/assert": "jsr:@std/assert@1.0.19"
   },
   "publish": {
     "exclude": [
