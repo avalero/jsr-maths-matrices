@@ -7,15 +7,32 @@ import {
 import { Matrix } from "../matrix.ts";
 import { multiply } from "../multiply.ts";
 import { transpose } from "../transpose.ts";
+import { block as blockFn } from "../block.ts";
+import { cholesky as choleskyFn } from "../cholesky.ts";
+import {
+  conditionNumber1 as conditionNumber1Fn,
+  conditionNumberInf as conditionNumberInfFn,
+} from "../condition_number.ts";
+import {
+  concatHorizontal as concatHorizontalFn,
+  concatVertical as concatVerticalFn,
+} from "../concat.ts";
+import { diag as diagFn, fromDiagonal as fromDiagonalFn } from "../diagonal.ts";
+import { eigenPowerIteration as eigenPowerIterationFn } from "../eigen_power_iteration.ts";
 import { equalsApprox as equalsApproxFn } from "../equals_approx.ts";
 import { frobeniusNorm, norm1, normInf } from "../norm.ts";
 import { hadamard as hadamardFn } from "../hadamard.ts";
+import { solveLeastSquares as solveLeastSquaresFn } from "../least_squares.ts";
 import { lu as luFn } from "../lu.ts";
 import { matVec as matVecFn } from "../mat_vec.ts";
 import { qr as qrFn } from "../qr.ts";
 import { rank as rankFn } from "../rank.ts";
 import { scale as scaleFn } from "../scale.ts";
 import { solve as solveFn } from "../solve.ts";
+import {
+  isPositiveDefinite as isPositiveDefiniteFn,
+  isSymmetric as isSymmetricFn,
+} from "../symmetry.ts";
 import { trace as traceFn } from "../trace.ts";
 
 function assertMatrixAlmostEquals(
@@ -201,4 +218,123 @@ Deno.test("New APIs keep error semantics for invalid dimensions", () => {
     Error,
     "Vector length must match the number of matrix columns",
   );
+});
+
+Deno.test("Diagonal, concat, and block operations", () => {
+  const d = Matrix.fromDiagonal([1, 2, 3]);
+  assertEquals(d.data, [1, 0, 0, 0, 2, 0, 0, 0, 3]);
+  assertEquals(fromDiagonalFn([1, 2]).data, [1, 0, 0, 2]);
+  assertEquals(d.diag(), [1, 2, 3]);
+  assertEquals(diagFn(d), [1, 2, 3]);
+
+  const a = new Matrix([1, 2, 3, 4], 2, 2);
+  const b = new Matrix([5, 6, 7, 8], 2, 2);
+  assertEquals(a.concatHorizontal(b).data, [1, 2, 5, 6, 3, 4, 7, 8]);
+  assertEquals(concatHorizontalFn(a, b).data, [1, 2, 5, 6, 3, 4, 7, 8]);
+  assertEquals(a.concatVertical(b).data, [1, 2, 3, 4, 5, 6, 7, 8]);
+  assertEquals(concatVerticalFn(a, b).data, [1, 2, 3, 4, 5, 6, 7, 8]);
+
+  const blk = Matrix.block([
+    [Matrix.fromDiagonal([1]), Matrix.fromDiagonal([2])],
+    [Matrix.fromDiagonal([3]), Matrix.fromDiagonal([4])],
+  ]);
+  assertEquals(blk.data, [1, 2, 3, 4]);
+  const blkFn = blockFn([
+    [new Matrix([1], 1, 1), new Matrix([2], 1, 1)],
+    [new Matrix([3], 1, 1), new Matrix([4], 1, 1)],
+  ]);
+  assertEquals(blkFn.data, [1, 2, 3, 4]);
+});
+
+Deno.test("Symmetry, SPD, and Cholesky", () => {
+  const spd = new Matrix(
+    [
+      4,
+      1,
+      1,
+      1,
+      3,
+      0,
+      1,
+      0,
+      2,
+    ],
+    3,
+    3,
+  );
+  assert(spd.isSymmetric());
+  assert(isSymmetricFn(spd));
+  assert(spd.isPositiveDefinite());
+  assert(isPositiveDefiniteFn(spd));
+
+  const l = spd.cholesky();
+  const reconstructed = multiply(l, transpose(l));
+  assertMatrixAlmostEquals(reconstructed, spd, 1e-8);
+
+  const lf = choleskyFn(spd);
+  assertMatrixAlmostEquals(multiply(lf, transpose(lf)), spd, 1e-8);
+
+  const nonSpd = new Matrix([1, 2, 2, 1], 2, 2);
+  assert(!nonSpd.isPositiveDefinite());
+  assertThrows(
+    () => nonSpd.cholesky(),
+    Error,
+    "Matrix is not positive definite",
+  );
+});
+
+Deno.test("Least squares and condition numbers", () => {
+  const a = new Matrix(
+    [
+      1,
+      1,
+      1,
+      2,
+      1,
+      3,
+    ],
+    3,
+    2,
+  );
+  const b = [1, 2, 2];
+  const x = a.solveLeastSquares(b);
+  assertAlmostEquals(x[0], 2 / 3, 1e-9);
+  assertAlmostEquals(x[1], 0.5, 1e-9);
+
+  const xf = solveLeastSquaresFn(a, b);
+  assertAlmostEquals(xf[0], 2 / 3, 1e-9);
+  assertAlmostEquals(xf[1], 0.5, 1e-9);
+
+  const xTruth = new Matrix([1, 2, 3, 4], 2, 2);
+  const bMat = multiply(a, xTruth);
+  const xMat = a.solveLeastSquares(bMat);
+  assertMatrixAlmostEquals(xMat, xTruth, 1e-8);
+
+  const condMatrix = new Matrix([4, 1, 1, 3], 2, 2);
+  assertAlmostEquals(
+    condMatrix.conditionNumber1(),
+    conditionNumber1Fn(condMatrix),
+    1e-9,
+  );
+  assertAlmostEquals(
+    condMatrix.conditionNumberInf(),
+    conditionNumberInfFn(condMatrix),
+    1e-9,
+  );
+});
+
+Deno.test("Power iteration dominant eigenpair", () => {
+  const a = new Matrix([2, 0, 0, 1], 2, 2);
+  const result = a.eigenPowerIteration(200, 1e-12);
+  assertAlmostEquals(result.eigenvalue, 2, 1e-8);
+  assertAlmostEquals(
+    result.eigenvector[0] * result.eigenvector[0] +
+      result.eigenvector[1] * result.eigenvector[1],
+    1,
+    1e-9,
+  );
+  assert(Math.abs(result.eigenvector[0]) > 0.99);
+
+  const resultFn = eigenPowerIterationFn(a, 200, 1e-12);
+  assertAlmostEquals(resultFn.eigenvalue, 2, 1e-8);
 });
