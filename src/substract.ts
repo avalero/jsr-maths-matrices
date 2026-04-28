@@ -15,6 +15,6 @@ export function substract(a: Matrix, b: Matrix): Matrix {
   return new Matrix(
     a.data.map((value, index) => value - b.data[index]),
     a.rows,
-    a.cols
+    a.cols,
   );
 }

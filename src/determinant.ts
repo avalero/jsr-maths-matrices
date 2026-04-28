@@ -1,4 +1,4 @@
-import { Matrix } from "./matrix.ts";
+import type { Matrix } from "./matrix.ts";
 
 /**
  * Calculate the determinant of a matrix

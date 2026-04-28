@@ -1,4 +1,4 @@
-import { Matrix } from "./matrix.ts";
+import type { Matrix } from "./matrix.ts";
 
 /**
  * Inverts a matrix.
@@ -8,6 +8,5 @@ import { Matrix } from "./matrix.ts";
  * @note Consider using the `getInverse` method of the matrix instance instead of this function.
  */
 export function invert(matrix: Matrix): Matrix {
-  
   return matrix.getInverse();
 }

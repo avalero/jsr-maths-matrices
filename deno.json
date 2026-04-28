@@ -1,14 +1,24 @@
 {
   "name": "@maths/matrix",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "exports": {
     ".": "./mod.ts"
   },
   "description": "A Matrix library",
+  "imports": {
+    "@std/assert": "jsr:@std/assert@0.222.1"
+  },
   "publish": {
-    "exclude": ["./tests", ".gitignore", ".vscode", ".github"]
+    "exclude": [
+      "./src/tests",
+      "./src/bench",
+      ".gitignore",
+      ".vscode",
+      ".github"
+    ]
   },
   "tasks": {
-    "test": "deno test ./tests"
+    "test": "deno test ./src/tests",
+    "bench": "deno bench ./src/bench/*.bench.ts"
   }
 }

@@ -1,4 +1,4 @@
-import { assertEquals, assertThrows } from "jsr:@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 import { Matrix } from "../matrix.ts";
 import { multiply, multiplyMany } from "../multiply.ts";
 
@@ -29,7 +29,7 @@ Deno.test("Matrix multiplication error for incompatible matrices", () => {
   assertThrows(
     () => multiply(a, b),
     Error,
-    "Number of columns of the first matrix must be the same as the number of rows of the second matrix"
+    "Number of columns of the first matrix must be the same as the number of rows of the second matrix",
   );
 });
 
@@ -58,6 +58,6 @@ Deno.test("Multiply many matrices error for no matrices", () => {
   assertThrows(
     () => multiplyMany(matrices),
     Error,
-    "At least one matrix is required"
+    "At least one matrix is required",
   );
 });
