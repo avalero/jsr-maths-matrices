@@ -20,6 +20,15 @@ export interface QRDecomposition {
   R: Matrix;
 }
 
+export interface EigenPowerIterationResult {
+  /** Dominant eigenvalue estimate. */
+  eigenvalue: number;
+  /** Dominant eigenvector estimate (unit norm). */
+  eigenvector: number[];
+  /** Number of iterations performed. */
+  iterations: number;
+}
+
 export class Matrix {
   private _data: number[];
   private _rows: number;
@@ -122,6 +131,25 @@ export class Matrix {
   }
 
   /**
+   * Creates a diagonal matrix from vector entries.
+   * @param values Diagonal values.
+   * @returns Square diagonal matrix.
+   * @example
+   * ```ts
+   * const d = Matrix.fromDiagonal([1, 2, 3]);
+   * // d.data = [1,0,0,0,2,0,0,0,3]
+   * ```
+   */
+  static fromDiagonal(values: number[]): Matrix {
+    const n = values.length;
+    const data = new Array(n * n).fill(0);
+    for (let i = 0; i < n; i++) {
+      data[i * n + i] = values[i];
+    }
+    return new Matrix(data, n, n);
+  }
+
+  /**
    * Returns the data of the matrix as a flat array.
    * @returns Array of matrix elements.
    * @example
@@ -130,6 +158,157 @@ export class Matrix {
    */
   get data(): number[] {
     return this._data;
+  }
+
+  /**
+   * Returns the diagonal values of a square matrix.
+   * @returns Diagonal vector.
+   * @throws Error if the matrix is not square.
+   */
+  diag(): number[] {
+    if (this._rows !== this._cols) {
+      throw new Error("Matrix must be square");
+    }
+    const out = new Array(this._rows);
+    for (let i = 0; i < this._rows; i++) {
+      out[i] = this._data[i * this._cols + i];
+    }
+    return out;
+  }
+
+  /**
+   * Checks whether the matrix is symmetric within a tolerance.
+   * @param epsilon Absolute tolerance used for comparison.
+   * @returns `true` when square and approximately symmetric.
+   */
+  isSymmetric(epsilon: number = 1e-9): boolean {
+    if (epsilon < 0) {
+      throw new Error("Epsilon must be non-negative");
+    }
+    if (this._rows !== this._cols) {
+      return false;
+    }
+    for (let row = 0; row < this._rows; row++) {
+      for (let col = row + 1; col < this._cols; col++) {
+        const a = this._data[row * this._cols + col];
+        const b = this._data[col * this._cols + row];
+        if (Math.abs(a - b) > epsilon) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Concatenates two matrices horizontally (`[A | B]`).
+   * @param other Matrix to append on the right.
+   * @returns Concatenated matrix.
+   * @throws Error if row counts differ.
+   */
+  concatHorizontal(other: Matrix): Matrix {
+    if (this._rows !== other.rows) {
+      throw new Error("Matrix row counts must match");
+    }
+
+    const outCols = this._cols + other.cols;
+    const out = new Array(this._rows * outCols);
+    const otherData = other.data;
+
+    for (let row = 0; row < this._rows; row++) {
+      const outRowStart = row * outCols;
+      const leftStart = row * this._cols;
+      const rightStart = row * other.cols;
+      for (let col = 0; col < this._cols; col++) {
+        out[outRowStart + col] = this._data[leftStart + col];
+      }
+      for (let col = 0; col < other.cols; col++) {
+        out[outRowStart + this._cols + col] = otherData[rightStart + col];
+      }
+    }
+    return new Matrix(out, this._rows, outCols);
+  }
+
+  /**
+   * Concatenates two matrices vertically.
+   * @param other Matrix to append at the bottom.
+   * @returns Concatenated matrix.
+   * @throws Error if column counts differ.
+   */
+  concatVertical(other: Matrix): Matrix {
+    if (this._cols !== other.cols) {
+      throw new Error("Matrix column counts must match");
+    }
+    return new Matrix(
+      [...this._data, ...other.data],
+      this._rows + other.rows,
+      this._cols,
+    );
+  }
+
+  /**
+   * Builds a block matrix from a 2D array of matrices.
+   * @param blocks Block rows and columns.
+   * @returns Block-composed matrix.
+   * @throws Error if block layout is empty or dimensions are incompatible.
+   */
+  static block(blocks: Matrix[][]): Matrix {
+    if (blocks.length === 0 || blocks[0].length === 0) {
+      throw new Error("At least one block is required");
+    }
+    const blockCols = blocks[0].length;
+    for (const row of blocks) {
+      if (row.length !== blockCols) {
+        throw new Error("All block rows must have the same number of blocks");
+      }
+    }
+
+    const rowHeights = new Array(blocks.length);
+    const colWidths = new Array(blockCols);
+
+    for (let r = 0; r < blocks.length; r++) {
+      rowHeights[r] = blocks[r][0].rows;
+      for (let c = 1; c < blockCols; c++) {
+        if (blocks[r][c].rows !== rowHeights[r]) {
+          throw new Error("All blocks in a block-row must share row count");
+        }
+      }
+    }
+
+    for (let c = 0; c < blockCols; c++) {
+      colWidths[c] = blocks[0][c].cols;
+      for (let r = 1; r < blocks.length; r++) {
+        if (blocks[r][c].cols !== colWidths[c]) {
+          throw new Error(
+            "All blocks in a block-column must share column count",
+          );
+        }
+      }
+    }
+
+    const totalRows = rowHeights.reduce((acc, v) => acc + v, 0);
+    const totalCols = colWidths.reduce((acc, v) => acc + v, 0);
+    const out = new Array(totalRows * totalCols).fill(0);
+
+    let rowOffset = 0;
+    for (let br = 0; br < blocks.length; br++) {
+      let colOffset = 0;
+      for (let bc = 0; bc < blockCols; bc++) {
+        const block = blocks[br][bc];
+        const blockData = block.data;
+        for (let r = 0; r < block.rows; r++) {
+          const outRowStart = (rowOffset + r) * totalCols + colOffset;
+          const blockRowStart = r * block.cols;
+          for (let c = 0; c < block.cols; c++) {
+            out[outRowStart + c] = blockData[blockRowStart + c];
+          }
+        }
+        colOffset += block.cols;
+      }
+      rowOffset += blocks[br][0].rows;
+    }
+
+    return new Matrix(out, totalRows, totalCols);
   }
 
   /** returns a specific row of a matrix
@@ -500,6 +679,30 @@ export class Matrix {
   }
 
   /**
+   * Computes the matrix condition number in 1-norm.
+   * @returns Condition number `||A||_1 * ||A^{-1}||_1`.
+   * @throws Error if the matrix is not square or invertible.
+   */
+  conditionNumber1(): number {
+    if (this._rows !== this._cols) {
+      throw new Error("Matrix must be square");
+    }
+    return this.norm1() * this.getInverse().norm1();
+  }
+
+  /**
+   * Computes the matrix condition number in infinity-norm.
+   * @returns Condition number `||A||_inf * ||A^{-1}||_inf`.
+   * @throws Error if the matrix is not square or invertible.
+   */
+  conditionNumberInf(): number {
+    if (this._rows !== this._cols) {
+      throw new Error("Matrix must be square");
+    }
+    return this.normInf() * this.getInverse().normInf();
+  }
+
+  /**
    * Compares two matrices using an absolute tolerance.
    * @param other Matrix to compare.
    * @param epsilon Absolute tolerance, defaults to `1e-9`.
@@ -629,6 +832,62 @@ export class Matrix {
 
     const inverseData = right.map((value) => Matrix.normalizeNumber(value));
     return new Matrix(inverseData, n, n);
+  }
+
+  /**
+   * Computes Cholesky factorization for symmetric positive-definite matrices.
+   * @param epsilon Numerical tolerance used for positivity checks.
+   * @returns Lower-triangular matrix `L` such that `A = L * L^T`.
+   * @throws Error if the matrix is not square.
+   * @throws Error if the matrix is not symmetric positive-definite.
+   */
+  cholesky(epsilon: number = 1e-10): Matrix {
+    if (epsilon < 0) {
+      throw new Error("Epsilon must be non-negative");
+    }
+    if (this._rows !== this._cols) {
+      throw new Error("Matrix must be square");
+    }
+    if (!this.isSymmetric(epsilon)) {
+      throw new Error("Matrix must be symmetric");
+    }
+
+    const n = this._rows;
+    const l = new Array(n * n).fill(0);
+
+    for (let row = 0; row < n; row++) {
+      for (let col = 0; col <= row; col++) {
+        let sum = this._data[row * n + col];
+        for (let k = 0; k < col; k++) {
+          sum -= l[row * n + k] * l[col * n + k];
+        }
+
+        if (row === col) {
+          if (sum <= epsilon) {
+            throw new Error("Matrix is not positive definite");
+          }
+          l[row * n + col] = Math.sqrt(sum);
+        } else {
+          l[row * n + col] = sum / l[col * n + col];
+        }
+      }
+    }
+
+    return new Matrix(l.map((value) => Matrix.normalizeNumber(value)), n, n);
+  }
+
+  /**
+   * Checks whether a matrix is positive definite.
+   * @param epsilon Numerical tolerance used for positivity checks.
+   * @returns `true` when Cholesky factorization succeeds.
+   */
+  isPositiveDefinite(epsilon: number = 1e-10): boolean {
+    try {
+      this.cholesky(epsilon);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -910,6 +1169,155 @@ export class Matrix {
     }
 
     return new Matrix(out, n, rhsCols);
+  }
+
+  /**
+   * Solves the least-squares problem `min_x ||A x - b||_2` using QR decomposition.
+   * @param b Right-hand side vector (`number[]`) or matrix (`Matrix`).
+   * @param epsilon Threshold for rank checks and numerical stability.
+   * @returns Least-squares solution with shape matching `b`.
+   * @throws Error if the system is underdetermined (`rows < cols`).
+   * @throws Error if right-hand side dimensions are incompatible.
+   * @throws Error if the matrix is rank deficient.
+   */
+  solveLeastSquares(b: number[], epsilon?: number): number[];
+  solveLeastSquares(b: Matrix, epsilon?: number): Matrix;
+  solveLeastSquares(
+    b: number[] | Matrix,
+    epsilon: number = 1e-10,
+  ): number[] | Matrix {
+    if (epsilon < 0) {
+      throw new Error("Epsilon must be non-negative");
+    }
+    if (this._rows < this._cols) {
+      throw new Error("Least squares requires rows >= cols");
+    }
+
+    const m = this._rows;
+    const n = this._cols;
+    const { Q, R } = this.qr(epsilon);
+    const qData = Q.data; // m x n
+    const rData = R.data; // n x n
+
+    const solveUpper = (rhs: number[]): number[] => {
+      const y = new Array(n).fill(0);
+      for (let col = 0; col < n; col++) {
+        let dot = 0;
+        for (let row = 0; row < m; row++) {
+          dot += qData[row * n + col] * rhs[row];
+        }
+        y[col] = dot;
+      }
+
+      const x = new Array(n).fill(0);
+      for (let row = n - 1; row >= 0; row--) {
+        const diag = rData[row * n + row];
+        if (Math.abs(diag) <= epsilon) {
+          throw new Error("Matrix is rank deficient");
+        }
+        let acc = y[row];
+        for (let col = row + 1; col < n; col++) {
+          acc -= rData[row * n + col] * x[col];
+        }
+        x[row] = acc / diag;
+      }
+      return x.map((value) => Matrix.normalizeNumber(value));
+    };
+
+    if (Array.isArray(b)) {
+      if (b.length !== m) {
+        throw new Error("Right-hand side vector length must match matrix rows");
+      }
+      return solveUpper(b);
+    }
+
+    if (b.rows !== m) {
+      throw new Error("Right-hand side matrix rows must match matrix rows");
+    }
+
+    const out = new Array(n * b.cols).fill(0);
+    const rhsData = b.data;
+    for (let col = 0; col < b.cols; col++) {
+      const rhsCol = new Array(m);
+      for (let row = 0; row < m; row++) {
+        rhsCol[row] = rhsData[row * b.cols + col];
+      }
+      const solved = solveUpper(rhsCol);
+      for (let row = 0; row < n; row++) {
+        out[row * b.cols + col] = solved[row];
+      }
+    }
+    return new Matrix(out, n, b.cols);
+  }
+
+  /**
+   * Computes the dominant eigenpair using power iteration.
+   * @param maxIterations Maximum number of iterations.
+   * @param tolerance Convergence tolerance on residual norm.
+   * @returns Dominant eigenvalue/vector approximation and iteration count.
+   * @throws Error if the matrix is not square.
+   * @throws Error if iteration does not converge within the iteration budget.
+   */
+  eigenPowerIteration(
+    maxIterations: number = 1000,
+    tolerance: number = 1e-10,
+  ): EigenPowerIterationResult {
+    if (this._rows !== this._cols) {
+      throw new Error("Matrix must be square");
+    }
+    if (!Number.isInteger(maxIterations) || maxIterations <= 0) {
+      throw new Error("maxIterations must be a positive integer");
+    }
+    if (tolerance <= 0) {
+      throw new Error("tolerance must be positive");
+    }
+
+    const n = this._rows;
+    let vector = new Array(n).fill(1 / Math.sqrt(n));
+    let eigenvalue = 0;
+
+    for (let iteration = 1; iteration <= maxIterations; iteration++) {
+      const av = this.matVec(vector);
+      let normSq = 0;
+      for (let i = 0; i < n; i++) {
+        normSq += av[i] * av[i];
+      }
+      const norm = Math.sqrt(normSq);
+      if (norm === 0) {
+        return { eigenvalue: 0, eigenvector: vector, iterations: iteration };
+      }
+
+      const nextVector = new Array(n);
+      for (let i = 0; i < n; i++) {
+        nextVector[i] = av[i] / norm;
+      }
+
+      const avNext = this.matVec(nextVector);
+      let lambda = 0;
+      for (let i = 0; i < n; i++) {
+        lambda += nextVector[i] * avNext[i];
+      }
+
+      let residualSq = 0;
+      for (let i = 0; i < n; i++) {
+        const residual = avNext[i] - lambda * nextVector[i];
+        residualSq += residual * residual;
+      }
+      const residualNorm = Math.sqrt(residualSq);
+
+      vector = nextVector;
+      eigenvalue = lambda;
+
+      if (residualNorm <= tolerance) {
+        return {
+          eigenvalue: Matrix.normalizeNumber(eigenvalue),
+          eigenvector: vector.map((v) => Matrix.normalizeNumber(v)),
+          iterations: iteration,
+        };
+      }
+    }
+
+    throw new Error("Power iteration did not converge");
   }
 
   /**
