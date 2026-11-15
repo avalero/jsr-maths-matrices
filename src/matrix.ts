@@ -34,17 +34,6 @@ export class Matrix {
   private _rows: number;
   private _cols: number;
 
-  private static normalizeNumber(value: number): number {
-    if (Math.abs(value) < 1e-12) {
-      return 0;
-    }
-    const roundedInteger = Math.round(value);
-    if (Math.abs(value - roundedInteger) < 1e-12) {
-      return roundedInteger;
-    }
-    return Number(value.toPrecision(15));
-  }
-
   /**
    * Constructs a matrix with the provided data, rows, and columns.
    * @param data Array of numbers representing the matrix elements in row-major order.
@@ -519,7 +508,7 @@ export class Matrix {
     }
 
     const result = swaps % 2 === 0 ? det : -det;
-    return Matrix.normalizeNumber(result);
+    return result;
   }
 
   /**
@@ -603,7 +592,7 @@ export class Matrix {
       for (let col = 0; col < this._cols; col++) {
         acc += this._data[rowStart + col] * vector[col];
       }
-      result[row] = Matrix.normalizeNumber(acc);
+      result[row] = acc;
     }
     return result;
   }
@@ -626,7 +615,7 @@ export class Matrix {
     for (let i = 0; i < this._rows; i++) {
       sum += this._data[i * this._cols + i];
     }
-    return Matrix.normalizeNumber(sum);
+    return sum;
   }
 
   /**
@@ -773,22 +762,32 @@ export class Matrix {
     if (n === 0) {
       throw new Error("Matrix is not invertible");
     }
-    const epsilon = 1e-10;
     const left = [...this._data];
     const right = Matrix.createIdentity(n).data;
+    const rowScales = Array.from({ length: n }, (_, row) => {
+      let scale = 0;
+      for (let col = 0; col < n; col++) {
+        scale = Math.max(scale, Math.abs(left[row * n + col]));
+      }
+      return scale;
+    });
 
     for (let pivotCol = 0; pivotCol < n; pivotCol++) {
       let pivotRow = pivotCol;
-      let maxAbs = Math.abs(left[pivotRow * n + pivotCol]);
+      let maxRatio = rowScales[pivotRow] === 0
+        ? 0
+        : Math.abs(left[pivotRow * n + pivotCol]) / rowScales[pivotRow];
       for (let row = pivotCol + 1; row < n; row++) {
-        const valueAbs = Math.abs(left[row * n + pivotCol]);
-        if (valueAbs > maxAbs) {
-          maxAbs = valueAbs;
+        const valueRatio = rowScales[row] === 0
+          ? 0
+          : Math.abs(left[row * n + pivotCol]) / rowScales[row];
+        if (valueRatio > maxRatio) {
+          maxRatio = valueRatio;
           pivotRow = row;
         }
       }
 
-      if (maxAbs < epsilon) {
+      if (maxRatio <= Number.EPSILON * n) {
         throw new Error("Matrix is not invertible");
       }
 
@@ -805,6 +804,9 @@ export class Matrix {
           right[pivotStart + col] = right[swapStart + col];
           right[swapStart + col] = rightTmp;
         }
+        const scaleTmp = rowScales[pivotCol];
+        rowScales[pivotCol] = rowScales[pivotRow];
+        rowScales[pivotRow] = scaleTmp;
       }
 
       const pivotIndex = pivotCol * n + pivotCol;
@@ -830,8 +832,7 @@ export class Matrix {
       }
     }
 
-    const inverseData = right.map((value) => Matrix.normalizeNumber(value));
-    return new Matrix(inverseData, n, n);
+    return new Matrix(right, n, n);
   }
 
   /**
@@ -873,7 +874,7 @@ export class Matrix {
       }
     }
 
-    return new Matrix(l.map((value) => Matrix.normalizeNumber(value)), n, n);
+    return new Matrix(l, n, n);
   }
 
   /**
@@ -909,20 +910,31 @@ export class Matrix {
     const u = [...this._data];
     const l = Matrix.createIdentity(n).data;
     const p = Matrix.createIdentity(n).data;
+    const rowScales = Array.from({ length: n }, (_, row) => {
+      let scale = 0;
+      for (let col = 0; col < n; col++) {
+        scale = Math.max(scale, Math.abs(u[row * n + col]));
+      }
+      return scale;
+    });
     let pivotSign = 1;
 
     for (let col = 0; col < n; col++) {
       let pivotRow = col;
-      let maxAbs = Math.abs(u[col * n + col]);
+      let maxRatio = rowScales[col] === 0
+        ? 0
+        : Math.abs(u[col * n + col]) / rowScales[col];
       for (let row = col + 1; row < n; row++) {
-        const current = Math.abs(u[row * n + col]);
-        if (current > maxAbs) {
-          maxAbs = current;
+        const currentRatio = rowScales[row] === 0
+          ? 0
+          : Math.abs(u[row * n + col]) / rowScales[row];
+        if (currentRatio > maxRatio) {
+          maxRatio = currentRatio;
           pivotRow = row;
         }
       }
 
-      if (maxAbs < epsilon) {
+      if (maxRatio <= epsilon) {
         throw new Error("Matrix is singular");
       }
 
@@ -939,6 +951,9 @@ export class Matrix {
           p[pivotStart + j] = p[swapStart + j];
           p[swapStart + j] = tmpP;
         }
+        const scaleTmp = rowScales[col];
+        rowScales[col] = rowScales[pivotRow];
+        rowScales[pivotRow] = scaleTmp;
 
         for (let j = 0; j < col; j++) {
           const tmpL = l[pivotStart + j];
@@ -962,8 +977,8 @@ export class Matrix {
     }
 
     return {
-      L: new Matrix(l.map((value) => Matrix.normalizeNumber(value)), n, n),
-      U: new Matrix(u.map((value) => Matrix.normalizeNumber(value)), n, n),
+      L: new Matrix(l, n, n),
+      U: new Matrix(u, n, n),
       P: new Matrix(p, n, n),
       pivotSign,
     };
@@ -1026,8 +1041,8 @@ export class Matrix {
     }
 
     return {
-      Q: new Matrix(q.map((value) => Matrix.normalizeNumber(value)), m, kMax),
-      R: new Matrix(r.map((value) => Matrix.normalizeNumber(value)), kMax, n),
+      Q: new Matrix(q, m, kMax),
+      R: new Matrix(r, kMax, n),
     };
   }
 
@@ -1142,7 +1157,7 @@ export class Matrix {
         x[row] = acc / u[row * n + row];
       }
 
-      return x.map((value) => Matrix.normalizeNumber(value));
+      return x;
     };
 
     if (Array.isArray(b)) {
@@ -1221,7 +1236,7 @@ export class Matrix {
         }
         x[row] = acc / diag;
       }
-      return x.map((value) => Matrix.normalizeNumber(value));
+      return x;
     };
 
     if (Array.isArray(b)) {
@@ -1310,8 +1325,8 @@ export class Matrix {
 
       if (residualNorm <= tolerance) {
         return {
-          eigenvalue: Matrix.normalizeNumber(eigenvalue),
-          eigenvector: vector.map((v) => Matrix.normalizeNumber(v)),
+          eigenvalue,
+          eigenvector: vector,
           iterations: iteration,
         };
       }

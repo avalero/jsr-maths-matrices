@@ -129,7 +129,7 @@ Deno.test("Matrix 3x3 determinant method", () => {
   const rows = 3;
   const cols = 3;
   const matrix = new Matrix(data, rows, cols);
-  assertEquals(matrix.determinant(), 0);
+  assertAlmostEquals(matrix.determinant(), 0, 1e-12);
 });
 
 // determinant of 4x4 matrix , result must be different from 0
@@ -138,7 +138,7 @@ Deno.test("Matrix 4x4 determinant method", () => {
   const rows = 4;
   const cols = 4;
   const matrix = new Matrix(data, rows, cols);
-  assertEquals(matrix.determinant(), 8);
+  assertAlmostEquals(matrix.determinant(), 8, 1e-12);
 });
 
 Deno.test(
@@ -235,14 +235,18 @@ Deno.test("Matrix invert - Square and Invertible Matrix", () => {
   const matrix = new Matrix([4, 7, 2, 6], 2, 2); // A 2x2 invertible matrix
   matrix.invert(); // Perform in-place inversion
   const expectedOutput = new Matrix([0.6, -0.7, -0.2, 0.4], 2, 2); // Corrected expected inverse matrix
-  assertEquals(matrix.data, expectedOutput.data);
+  matrix.data.forEach((value, index) => {
+    assertAlmostEquals(value, expectedOutput.data[index], 1e-12);
+  });
 });
 
 Deno.test("Matrix getInverse - Square and Invertible Matrix", () => {
   const matrix = new Matrix([4, 7, 2, 6], 2, 2);
   const inverseMatrix = matrix.getInverse();
   const expectedOutput = new Matrix([0.6, -0.7, -0.2, 0.4], 2, 2);
-  assertEquals(inverseMatrix.data, expectedOutput.data);
+  inverseMatrix.data.forEach((value, index) => {
+    assertAlmostEquals(value, expectedOutput.data[index], 1e-12);
+  });
 });
 
 Deno.test("Matrix invert - Non-square Matrix", () => {
